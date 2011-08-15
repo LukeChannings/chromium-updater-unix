@@ -60,7 +60,7 @@ function get_info {
 		CURRENTVERSIONRAW=`curl -s http://src.chromium.org/viewvc/chrome/trunk/src/chrome/VERSION?revision=$CURRENTREV`
 	elif [ $OS == "Linux" ]; then
 		CURRENTREV=`wget -qO- http://build.chromium.org/f/chromium/snapshots/Linux/LATEST`
-		CURRENTVERSIONRAW=`wget -q0- http://src.chromium.org/viewvc/chrome/trunk/src/chrome/VERSION?revision=$CURRENTREV`
+		CURRENTVERSIONRAW=`wget -qO- http://src.chromium.org/viewvc/chrome/trunk/src/chrome/VERSION?revision=$CURRENTREV`
 	fi
 	
 	CURRENTVERSION=`echo $CURRENTVERSIONRAW | sed -e 's/MAJOR=//' -e 's/MINOR=//' -e 's/BUILD=//' -e 's/PATCH=//' -e 's/ /./g'`
