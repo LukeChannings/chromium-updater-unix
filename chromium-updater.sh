@@ -33,7 +33,7 @@ function get_info {
 	system
 
 	# Check if Chromium is installed.
-	if [ $INSTALLPATH/$INSTALLNAME ]; then
+	if [ -d $INSTALLPATH/$INSTALLNAME ]; then
 		echo "Chromium exists."
 	fi
 
