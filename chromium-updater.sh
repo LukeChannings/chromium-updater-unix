@@ -6,8 +6,7 @@
 #
 
 # Function to set operating variables.
-function system
-{
+function system {
 	# Check if the system is OS X or Linux.
 	UNAME=`uname`
 	case $UNAME in
@@ -15,13 +14,19 @@ function system
 			OS="Mac"
 			ZIPNAME="chrome-mac"
 			INSTALLPATH="/Applications"
-			INSTALLNAME="Chromium.app"
+			INSTALLBASE="Chromium.app"
+			INSTALLNAME="/Contents/MacOS/Chromium"
 		;;
 		Linux)
 			OS="Linux"
 			ZIPNAME="chrome-linux"
 			INSTALLPATH="/opt/"
-			INSTALLNAME="chromium"
+			INSTALLBASE="chromium"
+			INSTALLNAME="chrome"
+		;;
+		\?)
+			echo "This system is not supported."
+			exit
 		;;
 	esac
 }
@@ -33,10 +38,32 @@ function get_info {
 	system
 
 	# Check if Chromium is installed.
-	if [ -d $INSTALLPATH/$INSTALLNAME ]; then
-		echo "Chromium exists."
+	if [ -d $INSTALLPATH/$INSTALLBASE ]; then
+		INSTALLED=true
+	else
+		INSTALLED=false
 	fi
 
+	# Get information on the installed Chromium version.
+	if $INSTALLED; then
+		# Find version.
+		INSTALLEDVERSION=`$INSTALLPATH/$INSTALLBASE/$INSTALLNAME --version`
+		# Find SVN Revision. (Only possible on OS X sadly.)
+		if [ $OS == "Mac" ]; then
+			INSTALLEDREV=`cat /Applications/Chromium.app/Contents/Info.plist | grep -A 1 SVNRevision | grep -o "[[:digit:]]\+"`
+		fi
+	fi
+
+	# Get information on the latest Chromium version.
+	if [ $OS == "Mac" ]; then
+		CURRENTREV=`curl -s http://build.chromium.org/f/chromium/snapshots/Mac/LATEST`
+	elif [ $OS == "Linux" ]; then
+		CURRENTREV=`curl -s http://build.chromium.org/f/chromium/snapshots/Linux/LATEST`
+	fi
 }
 
 get_info
+
+echo "Chromium version $INSTALLEDVERSION"
+if [ $OS == "Mac" ]; then echo "Chromium SVN Revision $INSTALLEDREV"; fi
+echo "Latest revision is $CURRENTREV"
