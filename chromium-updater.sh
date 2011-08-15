@@ -58,12 +58,15 @@ function get_info {
 	if [ $OS == "Mac" ]; then
 		CURRENTREV=`curl -s http://build.chromium.org/f/chromium/snapshots/Mac/LATEST`
 	elif [ $OS == "Linux" ]; then
-		CURRENTREV=`curl -s http://build.chromium.org/f/chromium/snapshots/Linux/LATEST`
+		CURRENTREV=`wget -qO- http://build.chromium.org/f/chromium/snapshots/Linux/LATEST`
 	fi
 }
 
 get_info
 
-echo "Chromium version $INSTALLEDVERSION"
-if [ $OS == "Mac" ]; then echo "Chromium SVN Revision $INSTALLEDREV"; fi
+if $INSTALLED; then
+	echo "Chromium version $INSTALLEDVERSION"
+	if [ $OS == "Mac" ]; then echo "Chromium SVN Revision $INSTALLEDREV"; fi
+fi
+
 echo "Latest revision is $CURRENTREV"
