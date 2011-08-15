@@ -57,9 +57,13 @@ function get_info {
 	# Get information on the latest Chromium version.
 	if [ $OS == "Mac" ]; then
 		CURRENTREV=`curl -s http://build.chromium.org/f/chromium/snapshots/Mac/LATEST`
+		CURRENTVERSIONRAW=`curl -s http://src.chromium.org/viewvc/chrome/trunk/src/chrome/VERSION?revision=$CURRENTREV`
 	elif [ $OS == "Linux" ]; then
 		CURRENTREV=`wget -qO- http://build.chromium.org/f/chromium/snapshots/Linux/LATEST`
+		CURRENTVERSIONRAW=`wget -q0- http://src.chromium.org/viewvc/chrome/trunk/src/chrome/VERSION?revision=$CURRENTREV`
 	fi
+	
+	CURRENTVERSION=`echo $CURRENTVERSIONRAW | sed -e 's/MAJOR=//' -e 's/MINOR=//' -e 's/BUILD=//' -e 's/PATCH=//' -e 's/ /./g'`
 }
 
 get_info
@@ -70,3 +74,4 @@ if $INSTALLED; then
 fi
 
 echo "Latest revision is $CURRENTREV"
+echo "Latest Chromium version is $CURRENTVERSION"
