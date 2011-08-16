@@ -60,21 +60,16 @@ get_info() {
 		LOOKUPLATESTREVISION=false
 	fi
 
-	# Check if Chromium is installed.
-	if [ -d $INSTALLPATH/$INSTALLBASE ]; then
-		INSTALLED=true
-	else
-		INSTALLED=false
-	fi
-
 	# Get information on the installed Chromium version.
-	if $INSTALLED; then
+	if [ -d $INSTALLPATH/$INSTALLBASE ]; then
 		# Find version.
 		INSTALLEDVERSION=`$INSTALLPATH/$INSTALLBASE/$INSTALLNAME --version | sed "s/Chromium//" | sed "s/ //g"`
 		# Find SVN Revision. (Only possible on OS X sadly.)
 		if [ $OS == "Mac" ]; then
 			INSTALLEDREV=`cat /Applications/Chromium.app/Contents/Info.plist | grep -A 1 SVNRevision | grep -o "[[:digit:]]\+"`
 		fi
+		# Set installed variable for other functions.
+		INSTALLED=true
 	fi
 	
 	# Find the latest SVN Revision and its version.
