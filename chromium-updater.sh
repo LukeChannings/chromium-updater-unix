@@ -36,6 +36,8 @@ function system {
 		;;
 	esac
 
+	ZIPOPTS="-q"
+
 	# Set Debugging parameter to true.
 	DEBUG=true
 
@@ -69,7 +71,7 @@ function get_info {
 	# Get information on the installed Chromium version.
 	if $INSTALLED; then
 		# Find version.
-		INSTALLEDVERSION=`$INSTALLPATH/$INSTALLBASE/$INSTALLNAME --version`
+		INSTALLEDVERSION=`$INSTALLPATH/$INSTALLBASE/$INSTALLNAME --version | sed "s/Chromium//" | sed "s/ //g"`
 		# Find SVN Revision. (Only possible on OS X sadly.)
 		if [ $OS == "Mac" ]; then
 			INSTALLEDREV=`cat /Applications/Chromium.app/Contents/Info.plist | grep -A 1 SVNRevision | grep -o "[[:digit:]]\+"`
@@ -77,15 +79,13 @@ function get_info {
 	fi
 
 	# Get information on the latest Chromium version.
-	if [ $OS == "Mac" ]; then
-		CURRENTREV=`curl -s http://build.chromium.org/f/chromium/snapshots/Mac/LATEST`
-		CURRENTVERSIONRAW=`curl -s http://src.chromium.org/viewvc/chrome/trunk/src/chrome/VERSION?revision=$CURRENTREV`
-	elif [ $OS == "Linux" ]; then
-		CURRENTREV=`wget -qO- http://build.chromium.org/f/chromium/snapshots/Linux/LATEST`
-		CURRENTVERSIONRAW=`wget -qO- http://src.chromium.org/viewvc/chrome/trunk/src/chrome/VERSION?revision=$CURRENTREV`
-	fi
-	
-	CURRENTVERSION=`echo $CURRENTVERSIONRAW | sed -e 's/MAJOR=//' -e 's/MINOR=//' -e 's/BUILD=//' -e 's/PATCH=//' -e 's/ /./g'`
+	CURRENTREV=`$DM $DMSOPTS http://build.chromium.org/f/chromium/snapshots/$OS/LATEST`
+	CURRENTVERSION=`$DM $DMSOPTS http://src.chromium.org/viewvc/chrome/trunk/src/chrome/VERSION?revision=$CURRENTREV | \
+	sed -e 's/MAJOR=//' -e 's/MINOR=/./' -e 's/BUILD=/./' -e 's/PATCH=/./' | tr -d '\n'`
+
+	echo "$CURRENTVERSION = $INSTALLEDVERSION"
+	exit
+
 }
 
 
