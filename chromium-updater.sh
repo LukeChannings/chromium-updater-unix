@@ -86,6 +86,8 @@ get_info() {
 	echo "Done."
 }
 
+# Function to turn an SVN Revision number into a version number.
+# getVersion(){}
 
 # Function to install Chromium.
 #
@@ -109,7 +111,7 @@ install() {
 	fi
 
 	# Make a temporary folder in which to put downloaded files.
-	TMPNAME="tmp_$REV"
+	TMPNAME="tmp_$1"
 	if [ ! -d $TMPNAME ]; then mkdir $TMPNAME; fi
 	cd $TMPNAME
 
@@ -161,8 +163,39 @@ install() {
 
 	# Install
 	if ! $NOINSTALL; then
-		printf "Installing...\t\t\t"
-		echo "Done"
+
+		# If Chromium is installed...
+		if $INSTALLED; then
+
+			# Kill any running instance.
+			killall chromium 2> /dev/null
+			
+			# Delete the current version.
+			rm -rf $INSTALLPATH/$INSTALLBASE
+		fi
+
+		# If installing on Linux...
+		if [ $OS == "Linux" ]; then
+			
+			echo "Installing requires root. Please enter your password:"
+			
+			# Make /opt/chromium if it doesn't exist already.
+			if [ ! -d /opt/chromium ]; then sudo mkdir /opt/chromium; fi
+
+			# Make it writable.
+			sudo chmod -R 775 /opt/chromium
+
+			# Install.
+			cp -R chrome-linux/ /opt/chromium/
+		
+		# If Installing on OS X...
+		elif [ $OS == "Mac" ]; then
+
+			# Copy the app to /Applications.
+			cp -R chrome-mac/Chromium.app /Applications/
+		fi
+
+		echo "Installed Chromium version $CURRENTVERSION. (SVN r$1)"
 
 	fi
 
