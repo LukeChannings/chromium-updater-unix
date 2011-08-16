@@ -18,6 +18,7 @@ function system {
 			INSTALLNAME="/Contents/MacOS/Chromium"
 			DM="curl" #Download Manager.
 			DMDOPTS="-sO" # Download Options.
+			DMDDOPTS="-O" # File download option.
 			DMSOPTS="-s" # Streaming Options.
 		;;
 		Linux)
@@ -28,6 +29,7 @@ function system {
 			INSTALLNAME="chrome"
 			DM="wget" # Download Manager
 			DMDOPTS="-q" # Download Options.
+			DMDDOPTS="" # File download option.
 			DMSOPTS="-qO-" # Streaming Options
 		;;
 		\?)
@@ -37,28 +39,25 @@ function system {
 	esac
 
 	ZIPOPTS="-q"
-
-	# Set Debugging parameter to true.
-	DEBUG=true
+	ECHOOPTS="-n"
 
 }
 
 # Function to get the installed and current versions of Chromium.
-function get_info {
+# $1: True - Disable current revision lookup.
+get_info() {
 
 	# Call System
 	system
 
-	# Check for Debug parameter.
-	if $DEBUG; then
-		# Set Option overrides for debugging.
-		if [ $OS == "Mac" ]; then
-			DMOPTS="-O"
-			DMSOPTS=""
-		elif [ $OS == "Linux" ]; then
-			DMOPTS=""
-			DMSOPTS="-O-"
-		fi
+	# Message...
+	printf "Gathering info...\t\t\t"
+
+	# Check Revision lookup parameter.
+	if [ -z "$1" ]; then
+		LOOKUPLATESTREVISION=true
+	else
+		LOOKUPLATESTREVISION=false
 	fi
 
 	# Check if Chromium is installed.
@@ -77,15 +76,17 @@ function get_info {
 			INSTALLEDREV=`cat /Applications/Chromium.app/Contents/Info.plist | grep -A 1 SVNRevision | grep -o "[[:digit:]]\+"`
 		fi
 	fi
+	
+	# Find the latest SVN Revision and its version.
+	if $LOOKUPLATESTREVISION; then
+		# Find the Revision number.
+		CURRENTREV=`$DM $DMSOPTS http://build.chromium.org/f/chromium/snapshots/$OS/LATEST`
+		# Find the Version number of the revision.
+		CURRENTVERSION=`$DM $DMSOPTS http://src.chromium.org/viewvc/chrome/trunk/src/chrome/VERSION?revision=$CURRENTREV | \
+		sed -e 's/MAJOR=//' -e 's/MINOR=/./' -e 's/BUILD=/./' -e 's/PATCH=/./' | tr -d '\n'`
+	fi
 
-	# Get information on the latest Chromium version.
-	CURRENTREV=`$DM $DMSOPTS http://build.chromium.org/f/chromium/snapshots/$OS/LATEST`
-	CURRENTVERSION=`$DM $DMSOPTS http://src.chromium.org/viewvc/chrome/trunk/src/chrome/VERSION?revision=$CURRENTREV | \
-	sed -e 's/MAJOR=//' -e 's/MINOR=/./' -e 's/BUILD=/./' -e 's/PATCH=/./' | tr -d '\n'`
-
-	echo "$CURRENTVERSION = $INSTALLEDVERSION"
-	exit
-
+	echo "Done."
 }
 
 
@@ -97,19 +98,10 @@ function get_info {
 #
 install() {
 
-	# Friendly user message...
-	printf "Gathering info...\t\t"
-
-	# Call get_info.
-	get_info
-
 	# Check for a Revision number.
 	if [ -z "$1" ]; then
-		REV=$CURRENTREV
-		UPDATING=true
-	else
-		REV=$1
-		UPDATING=false
+		echo "Install function requires a revision variable."
+		exit
 	fi
 
 	# Check for NOINSTALL.
@@ -129,23 +121,19 @@ install() {
 		if [ "$CURRENTVERSION" == "$INSTALLEDVERSION" ]; then
 			echo "Chromium is on the latest version. ($CURRENTVERSION). Nothing to do here."
 			exit
-		else
-			echo "Updating Chromium to r$REV."
 		fi
-	else
-		echo "Using revision r$REV"
 	fi
 
 	# Check for an existing zip.
-	if [ -f chrome-mac.zip -o -f chrome-linux.zip ]; then
-		read -p "Found an existing zip file. Do you want to use it? (Y/N) " USEEXISTING
+	if [ -d chrome-mac -o -d chrome-linux ]; then
+		read -p "Found an existing download. Do you want to use it? (Y/N) " USEEXISTING
 		case $USEEXISTING in
 			y|Y|Yes|YES)
 				USEEXISTING=true
 			;;
-			n|N|No|NO)
+			n|N|No|NO|\?)
 				USEEXISTING=false
-				rm chrome-mac.zip chrome-linux.zip 2> /dev/null
+				rm -rf chrome-mac.zip chrome-linux.zip chrome-mac chrome-linux 2> /dev/null
 			;;
 		esac
 	else
@@ -156,30 +144,42 @@ install() {
 	if ! $USEEXISTING ; then
 
 		# Test that the revision exists.
-		REVISIONEXISTS=`$DM $DMSOPTS "http://build.chromium.org/f/chromium/snapshots/$OS/$REV/REVISIONS" | grep 404`
+		REVISIONEXISTS=`$DM $DMSOPTS "http://build.chromium.org/f/chromium/snapshots/$OS/$1/REVISIONS" | grep 404`
 
 		if [ -z "$REVISIONEXISTS" ]; then
-			printf "Downloading...\t\t\t"
-			$DM "http://build.chromium.org/f/chromium/snapshots/$OS/$REV/$ZIPNAME.zip" $DMDOPTS
-			printf "Done\n"
+			echo "Downloading r$1...			"
+			$DM "http://build.chromium.org/f/chromium/snapshots/$OS/$1/$ZIPNAME.zip" $DMDDOPTS
 
 		else
-			echo "Revision does not exist. Fatal."
+			echo "Revision $1 does not exist. Fatal."
 			exit
 		fi
-	fi
+		
+		# Extract.
+		printf "Extracting...\t\t\t"
+		unzip $ZIPOPTS $ZIPNAME.zip
+		echo "Done."
 
-	# Extract.
-	printf "Extracting...\t\t\t"
-	unzip $ZIPOPTS $ZIPNAME.zip
-	echo "Done."
+	fi
 
 	# Install
 	if ! $NOINSTALL; then
 		printf "Installing...\t\t\t"
-		echo "Not really done..."
+		echo "Done"
+
 	fi
 
 }
 
-install
+# Function to update Chromium to the latest version.
+update() {
+
+	# Get info on installed version.
+	get_info
+
+	# Call install.
+	install $CURRENTREV
+
+}
+
+update
