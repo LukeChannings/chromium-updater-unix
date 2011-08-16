@@ -9,6 +9,7 @@
 function system {
 	# Check if the system is OS X or Linux.
 	UNAME=`uname`
+	WHOIAM=`whoami`
 	case $UNAME in
 		Darwin)
 			OS="Mac"
@@ -194,14 +195,17 @@ install() {
 			
 			echo "Installing requires root. Please enter your password:"
 			
-			# Make /opt/chromium if it doesn't exist already.
-			if [ ! -d /opt/chromium ]; then sudo mkdir /opt/chromium; fi
+			# Delete existing Chromium if it exists.
+			if $INSTALLED; then sudo rm -rf /opt/chromium; fi
 
-			# Make it writable.
-			sudo chmod -R 775 /opt/chromium
+			# Copy the new Chromium.
+			sudo cp -R chrome-linux /opt/chromium/
 
-			# Install.
-			sudo cp -R chrome-linux/ /opt/chromium
+			# Change ownership.
+			sudo chown -R $WHOIAM /opt/chromium
+
+			# Change Mode.
+			chmod -R 700 /opt/chromium/
 		
 		# If Installing on OS X...
 		elif [ $OS == "Mac" ]; then
