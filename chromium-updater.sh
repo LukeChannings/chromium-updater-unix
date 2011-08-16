@@ -91,7 +91,7 @@ install() {
 
 	# Make a temporary folder in which to put downloaded files.
 	TMPNAME="tmp_$REV"
-	mkdir $TMPNAME
+	if [ ! -d $TMPNAME ]; then mkdir $TMPNAME; fi
 	cd $TMPNAME
 
 	if [ "$1" == true ]; then
@@ -103,7 +103,44 @@ install() {
 			echo "Updating Chromium."
 		fi
 	else
-		echo "Installing build $REV."
+		echo "Fetching build $REV."
+	fi
+
+	echo $PWD
+	# Check for an existing zip.
+	if [ -f chrome-mac.zip -o -f chrome-linux.zip ]; then
+		read -p "Found an existing zip file. Do you want to use it? (Y/N) " USEEXISTING
+		case $USEEXISTING in
+			y|Y|Yes|YES)
+				USEEXISTING=true
+			;;
+			n|N|No|NO)
+				USEEXISTING=false
+				rm chrome-mac.zip chrome-linux.zip 2> /dev/null
+			;;
+		esac
+	else
+		USEEXISTING=false
+	fi
+
+	# Download Chromium when we're not using existing file.
+	if ! $USEEXISTING ; then
+
+		echo "Downloading..."
+
+		if [ $OS == "Mac" ]; then
+			curl http://build.chromium.org/f/chromium/snapshots/Mac/$REV/chrome-mac.zip -sO
+		elif [ $OS == "Linux" ]; then
+			wget -q http://build.chromium.org/f/chromium/snapshots/Mac/$REV/chrome-linux.zip
+		fi
+	fi
+
+	# Extract.
+	echo "Extracting..."
+	if [ $OS == "Mac" ]; then
+		unzip -qo chrome-mac.zip
+	elif [ $OS == "Linux" ]; then
+		unzip -qo chrome-linux.zip
 	fi
 
 }
