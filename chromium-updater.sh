@@ -207,7 +207,7 @@ install() {
 			# Change Mode.
 			chmod -R 700 $INSTALLPATH/chromium/
 
-			# Install new Chromium.desktop
+			# Create a .desktop for Chromium.
 cat > google-chromium.desktop << "EOF"
 [Desktop Entry]
 Version=1.0
@@ -233,11 +233,9 @@ Exec=/opt/chromium/chrome --incognito
 TargetEnvironment=Unity
 EOF
 
+            # Install google-chromium.desktop
             sudo xdg-desktop-menu install google-chromium.desktop
 
-			if $SETDEFAULTBROWSER; then
-				xdg-settings set default-web-browser google-chromium.desktop
-			fi
 		# If Installing on OS X...
 		elif [ $OS == "Mac" ]; then
 
