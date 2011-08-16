@@ -70,6 +70,8 @@ get_info() {
 		fi
 		# Set installed variable for other functions.
 		INSTALLED=true
+	else
+		INSTALLED=false
 	fi
 	
 	# Find the latest SVN Revision and its version.
