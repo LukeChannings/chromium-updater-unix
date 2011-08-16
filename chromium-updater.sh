@@ -43,6 +43,21 @@ function system {
 
 }
 
+# Function to turn an SVN Revision number into a version number.
+# $1 - SVN Revision Number.
+getVersion(){
+
+	# Make sure there is a revision number to work with.
+	if [ -z "$1" ]; then
+		echo "getVersion() was not passed a revision number."
+		exit
+	fi
+	
+	# Find the Version number of the revision.
+	RETURNEDVERSION=`$DM $DMSOPTS http://src.chromium.org/viewvc/chrome/trunk/src/chrome/VERSION?revision=$1 | \
+	sed -e 's/MAJOR=//' -e 's/MINOR=/./' -e 's/BUILD=/./' -e 's/PATCH=/./' | tr -d '\n'`
+}
+
 # Function to get the installed and current versions of Chromium.
 # $1: True - Disable current revision lookup.
 get_info() {
@@ -78,17 +93,13 @@ get_info() {
 	if $LOOKUPLATESTREVISION; then
 		# Find the Revision number.
 		CURRENTREV=`$DM $DMSOPTS http://build.chromium.org/f/chromium/snapshots/$OS/LATEST`
-		# Find the Version number of the revision.
-		CURRENTVERSION=`$DM $DMSOPTS http://src.chromium.org/viewvc/chrome/trunk/src/chrome/VERSION?revision=$CURRENTREV | \
-		sed -e 's/MAJOR=//' -e 's/MINOR=/./' -e 's/BUILD=/./' -e 's/PATCH=/./' | tr -d '\n'`
+		# Get the version from the SVN Revision.
+		getVersion $CURRENTREV
+		CURRENTVERSION=$RETURNEDVERSION
 	fi
 
 	echo "Done."
 }
-
-# Function to turn an SVN Revision number into a version number.
-# getVersion(){}
-
 # Function to install Chromium.
 #
 # Parameters:
@@ -100,6 +111,17 @@ install() {
 	# Check for a Revision number.
 	if [ -z "$1" ]; then
 		echo "Install function requires a revision variable."
+		exit
+	else
+		# Find the version.
+		getVersion $1
+		VERSION=$RETURNEDVERSION
+	fi
+
+	# Check that the version about to be installed is not the same
+	# as the version currently installed.
+	if [ "$VERSION" == "$INSTALLEDVERSION" ]; then
+		echo "Installed and requested versions are the same. Nothing to do here."
 		exit
 	fi
 
@@ -114,15 +136,7 @@ install() {
 	TMPNAME="tmp_$1"
 	if [ ! -d $TMPNAME ]; then mkdir $TMPNAME; fi
 	cd $TMPNAME
-
-	if [ "$1" == true ]; then
-		# If updating then check the current version against the installed version.
-		if [ "$CURRENTVERSION" == "$INSTALLEDVERSION" ]; then
-			echo "Chromium is on the latest version. ($CURRENTVERSION). Nothing to do here."
-			exit
-		fi
-	fi
-
+	
 	# Check for an existing zip.
 	if [ -d chrome-mac -o -d chrome-linux ]; then
 		read -p "Found an existing download. Do you want to use it? (Y/N) " USEEXISTING
