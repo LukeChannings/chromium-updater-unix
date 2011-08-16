@@ -16,6 +16,9 @@ function system {
 			INSTALLPATH="/Applications"
 			INSTALLBASE="Chromium.app"
 			INSTALLNAME="/Contents/MacOS/Chromium"
+			DM="curl" #Download Manager.
+			DMDOPTS="-sO" # Download Options.
+			DMSOPTS="-s" # Streaming Options.
 		;;
 		Linux)
 			OS="Linux"
@@ -23,12 +26,19 @@ function system {
 			INSTALLPATH="/opt/"
 			INSTALLBASE="chromium"
 			INSTALLNAME="chrome"
+			DM="wget" # Download Manager
+			DMDOPTS="-q" # Download Options.
+			DMSOPTS="-qO-" # Streaming Options
 		;;
 		\?)
 			echo "This system is not supported."
 			exit
 		;;
 	esac
+
+	# Set Debugging parameter to true.
+	DEBUG=true
+
 }
 
 # Function to get the installed and current versions of Chromium.
@@ -36,6 +46,18 @@ function get_info {
 
 	# Call System
 	system
+
+	# Check for Debug parameter.
+	if $DEBUG; then
+		# Set Option overrides for debugging.
+		if [ $OS == "Mac" ]; then
+			DMOPTS="-O"
+			DMSOPTS=""
+		elif [ $OS == "Linux" ]; then
+			DMOPTS=""
+			DMSOPTS="-O-"
+		fi
+	fi
 
 	# Check if Chromium is installed.
 	if [ -d $INSTALLPATH/$INSTALLBASE ]; then
@@ -133,23 +155,13 @@ install() {
 	# Download Chromium when we're not using existing file.
 	if ! $USEEXISTING ; then
 
-
-		if [ $OS == "Mac" ]; then
-			DM="curl"
-			STREAMOPTS="-s"
-			OPTS="-sO"
-		elif [ $OS == "Linux" ]; then
-			DM="wget"
-			STREAMOPTS="-qO-"
-			OPTS="-q"
-		fi
-
 		# Test that the revision exists.
-		REVISIONEXISTS=`$DM $STREAMOPTS "http://build.chromium.org/f/chromium/snapshots/$OS/$REV/REVISIONS" | grep 404`
+		REVISIONEXISTS=`$DM $DMSOPTS "http://build.chromium.org/f/chromium/snapshots/$OS/$REV/REVISIONS" | grep 404`
 
 		if [ -z "$REVISIONEXISTS" ]; then
-			echo "Downloading..."
-			$DM "http://build.chromium.org/f/chromium/snapshots/$OS/$REV/$ZIPNAME.zip" $OPTS
+			printf "Downloading...\t\t\t"
+			$DM "http://build.chromium.org/f/chromium/snapshots/$OS/$REV/$ZIPNAME.zip" $DMDOPTS
+			printf "Done\n"
 
 		else
 			echo "Revision does not exist. Fatal."
@@ -158,18 +170,16 @@ install() {
 	fi
 
 	# Extract.
-	echo "Extracting..."
-	if [ $OS == "Mac" ]; then
-		unzip -qo chrome-mac.zip
-	elif [ $OS == "Linux" ]; then
-		unzip -qo chrome-linux.zip
-	fi
+	printf "Extracting...\t\t\t"
+	unzip $ZIPOPTS $ZIPNAME.zip
+	echo "Done."
 
 	# Install
 	if ! $NOINSTALL; then
-		echo "Installing..."
+		printf "Installing...\t\t\t"
+		echo "Not really done..."
 	fi
 
 }
 
-install "96866"
+install
