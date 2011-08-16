@@ -66,12 +66,46 @@ function get_info {
 	CURRENTVERSION=`echo $CURRENTVERSIONRAW | sed -e 's/MAJOR=//' -e 's/MINOR=//' -e 's/BUILD=//' -e 's/PATCH=//' -e 's/ /./g'`
 }
 
-get_info
 
-if $INSTALLED; then
-	echo "Chromium version $INSTALLEDVERSION"
-	if [ $OS == "Mac" ]; then echo "Chromium SVN Revision $INSTALLEDREV"; fi
-fi
+# Function to install Chromium.
+#
+# Parameters:
+# $1 - SVN Revision to install.
+# $2 - Updating bool.
+# $3 - No install bool.
+#
+install() {
 
-echo "Latest revision is $CURRENTREV"
-echo "Latest Chromium version is $CURRENTVERSION"
+	# Friendly user message...
+	echo "Gathering info..."
+
+	# Call get_info.
+	get_info
+
+	# Check for a Revision number.
+	if [ -z "$1" ]; then
+		REV=$CURRENTREV
+	else
+		REV=$1
+	fi
+
+	# Make a temporary folder in which to put downloaded files.
+	TMPNAME="tmp_$REV"
+	mkdir $TMPNAME
+	cd $TMPNAME
+
+	if [ "$1" == true ]; then
+		# If updating then check the current version against the installed version.
+		if [ "$CURRENTVERSION" == "$INSTALLEDVERSION" ]; then
+			echo "Chromium is on the latest version. ($CURRENTVERSION). Nothing to do here."
+			exit
+		else
+			echo "Updating Chromium."
+		fi
+	else
+		echo "Installing build $REV."
+	fi
+
+}
+
+install
