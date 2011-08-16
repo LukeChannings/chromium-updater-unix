@@ -71,13 +71,12 @@ function get_info {
 #
 # Parameters:
 # $1 - SVN Revision to install.
-# $2 - Updating bool.
-# $3 - No install bool.
+# $2 - No install bool.
 #
 install() {
 
 	# Friendly user message...
-	echo "Gathering info..."
+	printf "Gathering info...\t\t"
 
 	# Call get_info.
 	get_info
@@ -85,8 +84,17 @@ install() {
 	# Check for a Revision number.
 	if [ -z "$1" ]; then
 		REV=$CURRENTREV
+		UPDATING=true
 	else
 		REV=$1
+		UPDATING=false
+	fi
+
+	# Check for NOINSTALL.
+	if [ -z "$2" ]; then
+		NOINSTALL=false
+	else
+		NOINSTALL=true
 	fi
 
 	# Make a temporary folder in which to put downloaded files.
@@ -100,10 +108,10 @@ install() {
 			echo "Chromium is on the latest version. ($CURRENTVERSION). Nothing to do here."
 			exit
 		else
-			echo "Updating Chromium."
+			echo "Updating Chromium to r$REV."
 		fi
 	else
-		echo "Fetching build $REV."
+		echo "Using revision r$REV"
 	fi
 
 	# Check for an existing zip.
@@ -125,12 +133,27 @@ install() {
 	# Download Chromium when we're not using existing file.
 	if ! $USEEXISTING ; then
 
-		echo "Downloading..."
 
 		if [ $OS == "Mac" ]; then
-			curl http://build.chromium.org/f/chromium/snapshots/Mac/$REV/chrome-mac.zip -sO
+			DM="curl"
+			STREAMOPTS="-s"
+			OPTS="-sO"
 		elif [ $OS == "Linux" ]; then
-			wget -q http://build.chromium.org/f/chromium/snapshots/Linux/$REV/chrome-linux.zip
+			DM="wget"
+			STREAMOPTS="-qO-"
+			OPTS="-q"
+		fi
+
+		# Test that the revision exists.
+		REVISIONEXISTS=`$DM $STREAMOPTS "http://build.chromium.org/f/chromium/snapshots/$OS/$REV/REVISIONS" | grep 404`
+
+		if [ -z "$REVISIONEXISTS" ]; then
+			echo "Downloading..."
+			$DM "http://build.chromium.org/f/chromium/snapshots/$OS/$REV/$ZIPNAME.zip" $OPTS
+
+		else
+			echo "Revision does not exist. Fatal."
+			exit
 		fi
 	fi
 
@@ -142,6 +165,11 @@ install() {
 		unzip -qo chrome-linux.zip
 	fi
 
+	# Install
+	if ! $NOINSTALL; then
+		echo "Installing..."
+	fi
+
 }
 
-install
+install "96866"
