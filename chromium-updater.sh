@@ -25,7 +25,7 @@ function system {
 		Linux)
 			OS="Linux"
 			ZIPNAME="chrome-linux"
-			INSTALLPATH="/opt/"
+			INSTALLPATH="/opt"
 			INSTALLBASE="chromium"
 			INSTALLNAME="chrome"
 			DM="wget" # Download Manager
@@ -196,16 +196,16 @@ install() {
 			echo "Installing requires root. Please enter your password:"
 			
 			# Delete existing Chromium if it exists.
-			if $INSTALLED; then sudo rm -rf /opt/chromium; fi
+			if $INSTALLED; then sudo rm -rf $INSTALLPATH/chromium; fi
 
 			# Copy the new Chromium.
-			sudo cp -R chrome-linux /opt/chromium/
+			sudo cp -R chrome-linux $INSTALLPATH/chromium/
 
 			# Change ownership.
-			sudo chown -R $WHOIAM /opt/chromium
+			sudo chown -R $WHOIAM $INSTALLPATH/chromium
 
 			# Change Mode.
-			chmod -R 700 /opt/chromium/
+			chmod -R 700 $INSTALLPATH/chromium/
 		
 		# If Installing on OS X...
 		elif [ $OS == "Mac" ]; then
