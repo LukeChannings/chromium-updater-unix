@@ -106,7 +106,6 @@ install() {
 		echo "Fetching build $REV."
 	fi
 
-	echo $PWD
 	# Check for an existing zip.
 	if [ -f chrome-mac.zip -o -f chrome-linux.zip ]; then
 		read -p "Found an existing zip file. Do you want to use it? (Y/N) " USEEXISTING
@@ -131,7 +130,7 @@ install() {
 		if [ $OS == "Mac" ]; then
 			curl http://build.chromium.org/f/chromium/snapshots/Mac/$REV/chrome-mac.zip -sO
 		elif [ $OS == "Linux" ]; then
-			wget -q http://build.chromium.org/f/chromium/snapshots/Mac/$REV/chrome-linux.zip
+			wget -q http://build.chromium.org/f/chromium/snapshots/Linux/$REV/chrome-linux.zip
 		fi
 	fi
 
