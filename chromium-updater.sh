@@ -76,7 +76,7 @@ get_info() {
 	fi
 
 	# Get information on the installed Chromium version.
-	if [ -d $INSTALLPATH/$INSTALLBASE ]; then
+	if [ -f $INSTALLPATH/$INSTALLBASE/$INSTALLNAME ]; then
 		# Find version.
 		INSTALLEDVERSION=`$INSTALLPATH/$INSTALLBASE/$INSTALLNAME --version | sed "s/Chromium//" | sed "s/ //g"`
 		# Find SVN Revision. (Only possible on OS X sadly.)
