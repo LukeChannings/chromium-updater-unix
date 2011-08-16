@@ -199,14 +199,45 @@ install() {
 			if $INSTALLED; then sudo rm -rf $INSTALLPATH/chromium; fi
 
 			# Copy the new Chromium.
-			sudo cp -R chrome-linux $INSTALLPATH/chromium/
+			sudo cp -R chrome-linux $INSTALLPATH/chromium
 
 			# Change ownership.
 			sudo chown -R $WHOIAM $INSTALLPATH/chromium
 
 			# Change Mode.
 			chmod -R 700 $INSTALLPATH/chromium/
-		
+
+			# Install new Chromium.desktop
+cat > google-chromium.desktop << "EOF"
+[Desktop Entry]
+Version=1.0
+Name=Chromium
+GenericName=Web Browser
+Comment=Access the Internet
+Exec=/opt/chromium/chrome %U
+Terminal=false
+Icon=/opt/chromium/product_logo_48.png
+Type=Application
+Categories=Network;WebBrowser;
+MimeType=text/html;text/xml;application/xhtml_xml;x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/ftp;
+X-Ayatana-Desktop-Shortcuts=NewWindow;NewIncognito
+
+[NewWindow Shortcut Group]
+Name=New Window
+Exec=/opt/chromium/chrome
+TargetEnvironment=Unity
+
+[NewIncognito Shortcut Group]
+Name=New Incognito Window
+Exec=/opt/chromium/chrome --incognito
+TargetEnvironment=Unity
+EOF
+
+            sudo xdg-desktop-menu install google-chromium.desktop
+
+			if $SETDEFAULTBROWSER; then
+				xdg-settings set default-web-browser google-chromium.desktop
+			fi
 		# If Installing on OS X...
 		elif [ $OS == "Mac" ]; then
 
