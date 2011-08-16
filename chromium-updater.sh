@@ -133,7 +133,7 @@ install() {
 	fi
 
 	# Make a temporary folder in which to put downloaded files.
-	TMPNAME="tmp_$1"
+	TMPNAME="chromium_r$1"
 	if [ ! -d $TMPNAME ]; then mkdir $TMPNAME; fi
 	cd $TMPNAME
 	
@@ -200,7 +200,7 @@ install() {
 			sudo chmod -R 775 /opt/chromium
 
 			# Install.
-			cp -R chrome-linux/ /opt/chromium/
+			sudo cp -R chrome-linux/ /opt/chromium
 		
 		# If Installing on OS X...
 		elif [ $OS == "Mac" ]; then
