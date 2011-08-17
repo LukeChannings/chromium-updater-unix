@@ -5,6 +5,9 @@
 # Copyright 2011 Luke Channings
 #
 
+AUTHOR="Luke Channings"
+VERSION=1.0.1
+
 # Function to set operating variables.
 function system {
 	# Check if the system is OS X or Linux.
@@ -359,7 +362,9 @@ while getopts ":ir:uvs" opt; do
 			install $OPTARG
 		;;
 		v)
-			echo "Chromium Updater - version 1.0"
+			echo "Chromium Updater"
+			echo "Version: $VERSION"
+			echo "Author: $AUTHOR"
 			exit
 		;;
 		s)
