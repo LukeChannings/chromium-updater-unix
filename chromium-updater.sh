@@ -244,7 +244,11 @@ install() {
 			sudo chown -R `whoami`:users $INSTALLPATH/chromium
 
 			# Change Mode.
-			chmod -R 770 $INSTALLPATH/chromium/
+			chmod -R 700 $INSTALLPATH/chromium
+
+			if [ `whoami` == "root" ]; then
+				chmod -R 777 $INSTALLPATH/chromium
+			fi
 
             # If there is no Chromium entry, then make one.
             if [ ! -f /usr/share/applications/google-chromium.desktop ]; then
