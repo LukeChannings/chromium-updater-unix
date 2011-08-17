@@ -19,12 +19,12 @@ function system {
 			DM="curl" #Download Manager.
 			DMDDOPTS="-O" # File download option.
 			DMSOPTS="-s" # Streaming Options.
-            # Check not Tiger.
-                TIGERCHECK=`system_profiler SPSoftwareDataType | grep 'System Version' | grep "10.4"`
-            if [ ! -z "$TIGERCHECK" ]; then
-                echo "Chromium does not support OS X Tiger. Please upgrade OS X Leopard at least."
-                exit 1
-            fi
+            		# Check not Tiger.
+			TIGERCHECK=`system_profiler SPSoftwareDataType | grep 'System Version' | grep "10.4"`
+			if [ ! -z "$TIGERCHECK" ]; then
+				echo "Chromium does not support OS X Tiger. Please upgrade OS X Leopard at least."
+                		exit 1
+            		fi
 		;;
 		Linux)
 			if [ `uname -p` == "x86_64" ]; then
@@ -52,7 +52,7 @@ function system {
 
 # Function to turn an SVN Revision number into a version number.
 # $1 - SVN Revision Number.
-getVersion(){
+get_version(){
 
 	# Make sure system was called.
 	if [ -z "$SYSTEMCALLED" ]; then
@@ -61,7 +61,7 @@ getVersion(){
 
 	# Make sure there is a revision number to work with.
 	if [ -z "$1" ]; then
-		echo "getVersion() was not passed a revision number."
+		echo "get_version() was not passed a revision number."
 		exit 2
 	fi
 
@@ -76,7 +76,9 @@ getVersion(){
 get_info() {
 
 	# Call System
-	system
+	if [ -z "$SYSTEMCALLED" ]; then
+		system
+	fi
 
 	# Message...
 	printf "Gathering info...\t\t\t"
@@ -107,12 +109,29 @@ get_info() {
 		# Find the Revision number.
 		CURRENTREV=`$DM $DMSOPTS http://build.chromium.org/f/chromium/snapshots/$OS/LATEST`
 		# Get the version from the SVN Revision.
-		getVersion $CURRENTREV
+		get_version $CURRENTREV
 		CURRENTVERSION=$RETURNEDVERSION
 	fi
 
 	echo "Done."
 }
+
+# Function to show installed and current versions.
+function show_info
+{
+
+	# Get the installed and current versions.
+	get_info
+
+	printf "Installed: Chromium $INSTALLEDVERSION"
+	if [ ! -z "$INSTALLEDREV" ]; then printf " (r$INSTALLEDREV)\n"; else printf "\n"; fi
+	printf "Latest: Chromium $CURRENTVERSION (r$CURRENTREV)\n"
+
+	exit
+
+}
+
+
 # Function to install Chromium.
 #
 # Parameters:
@@ -127,7 +146,7 @@ install() {
 		exit 2
 	else
 		# Find the version.
-		getVersion $1
+		get_version $1
 		VERSION=$RETURNEDVERSION
 	fi
 
@@ -309,6 +328,7 @@ usage(){
 	printf -- "-i\t\t\tInstall the latest SVN revision.\n"
 	printf -- "-r <revision>\t\t\tInstall a specific SVN revision.\n"
 	printf -- "-U\t\t\tPrint this usage.\n"
+	printf -- "-s\t\t\tShow version information for installed and latest versions.\n"
 	printf -- "-v\t\t\tPrint script version.\n"
 
 	exit 0
@@ -316,7 +336,7 @@ usage(){
 }
 
 # Options.
-while getopts ":ir:uv" opt; do
+while getopts ":ir:uvs" opt; do
 	case $opt in
 		u)
 			usage
@@ -339,8 +359,12 @@ while getopts ":ir:uv" opt; do
 			install $OPTARG
 		;;
 		v)
-			echo "Chromium Updater - version 0.9"
+			echo "Chromium Updater - version 1.0"
 			exit
+		;;
+		s)
+			# Show Info.
+			show_info
 		;;
 		\?)
 			echo "Invalid option -$OPTARG."
