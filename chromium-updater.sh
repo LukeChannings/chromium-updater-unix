@@ -215,6 +215,14 @@ install() {
 			
 			echo "Installing requires root. Please enter your password:"
 
+			# sudo test.
+			sudo echo "Have sudo."
+
+			if [ $? -gt 0 ]; then
+				echo "Unable to obtain sudo. The script cannot continue."
+				exit
+			fi
+
 			# Some distro's don't have a symlink to /lib/libbz2.1.0
 			for i in `ls /lib | grep libbz2`; do
 				# Make one.
