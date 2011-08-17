@@ -25,6 +25,7 @@ function system {
            		     echo "Chromium does not support OS X Tiger. Please upgrade OS X Leopard at least."
            		     exit
            		 fi
+			 INSTALL64BIT=false
 		;;
 		Linux)
 			OS="Linux"
@@ -35,6 +36,7 @@ function system {
 			DM="wget" # Download Manager
 			DMDDOPTS="" # File download option.
 			DMSOPTS="-qO-" # Streaming Options
+			INSTALL64BIT=false
 		;;
 		\?)
 			echo "This system is not supported."
@@ -174,7 +176,7 @@ install() {
 		if [ -z "$REVISIONEXISTS" ]; then
 			echo "Downloading r$1...			"
 			rm chrome-linux.zip chrome-mac.zip 2> /dev/null # In case there is a .n naming conflict.
-			if [ $OS == "Linux" -a `uname -l` == "x86_64" ]; then
+			if $INSTALL64BIT; then
 				$DM "http://build.chromium.org/f/chromium/snapshots/$OS_x64/$1/$ZIPNAME.zip" $DMDDOPTS
 			else
 				$DM "http://build.chromium.org/f/chromium/snapshots/$OS/$1/$ZIPNAME.zip" $DMDDOPTS
@@ -279,12 +281,14 @@ EOF
 usage(){
 
 	printf "Usage:\n"
+	printf "$0 <parameters> <options>\n"
+	printf "Note: Parameters used after options will be ignored.\n\n"
 
 	# Options.
 	printf -- "-u\t\t\tUpgrade Chromium to the latest SVN revision.\n"
 	printf -- "-r <revision>\t\t\tInstall a specific SVN revision.\n"
 	printf -- "-U\t\t\tPrint this usage.\n"
-	printf -- "-v\t\t\tPrint script version.\n"
+	printf -- "-v\t\t\tPrint script version.\n\n"
 
 	# Parameters.
 	printf "Parameters:\n"
@@ -320,7 +324,22 @@ while getopts ":ur:Uvx" opt; do
 			exit
 		;;
 		x)
-			CHECK64BITSUPPORT=true
+
+			if [ -z "$SYSTEMCALLED" ]; then
+				system
+			fi
+
+			# Check for 64-bit architecture first...
+			if [ "$OS" == "Linux" ]; then
+				# Using separate if because -a is parsed if the first condition fails.
+				if [ `uname -l` == "x86_64" ];then
+					INSTALL64BIT=true
+				else
+					echo "This version of Linux is not 64-bit. Using 32-bit"
+				fi
+			elif [ "$OS" == "Mac" ]; then
+				echo "There is no 64-bit version of Chromium for OS X. Using 32-bit."
+			fi
 		;;
 		\?)
 			echo "Invalid option -$OPTARG."
