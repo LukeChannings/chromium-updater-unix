@@ -19,12 +19,12 @@ function system {
 			DM="curl" #Download Manager.
 			DMDDOPTS="-O" # File download option.
 			DMSOPTS="-s" # Streaming Options.
-            		# Check not Tiger.
-            		TIGERCHECK=`system_profiler SPSoftwareDataType | grep 'System Version' | grep "10.4"`
-           		 if [ ! -z "$TIGERCHECK" ]; then
-           		     echo "Chromium does not support OS X Tiger. Please upgrade OS X Leopard at least."
-           		     exit
-           		 fi
+            # Check not Tiger.
+                TIGERCHECK=`system_profiler SPSoftwareDataType | grep 'System Version' | grep "10.4"`
+            if [ ! -z "$TIGERCHECK" ]; then
+                echo "Chromium does not support OS X Tiger. Please upgrade OS X Leopard at least."
+                exit
+            fi
 		;;
 		Linux)
 			if [ `uname -p` == "x86_64" ]; then
@@ -180,6 +180,8 @@ install() {
 			rm chrome-linux.zip chrome-mac.zip 2> /dev/null # In case there is a .n naming conflict.
 			$DM "http://build.chromium.org/f/chromium/snapshots/$OS/$1/$ZIPNAME.zip" $DMDDOPTS
 
+			if $?; then
+
 		else
 			echo "Revision $1 does not exist. Fatal."
 			exit
@@ -209,6 +211,14 @@ install() {
 		if [[ $OS =~ Linux.* ]]; then
 			
 			echo "Installing requires root. Please enter your password:"
+
+			# Some distro's don't have a symlink to /lib/libbz2.1.0
+			for i in `ls /lib | grep libbz2`; do
+				# Make one.
+				sudo ln -s $i /lib/libbz2.so.1.0
+				# Exit the loop.
+				break
+			done
 			
 			# Delete existing Chromium if it exists.
 			if $INSTALLED; then sudo rm -rf $INSTALLPATH/chromium; fi
@@ -251,11 +261,11 @@ Exec=/opt/chromium/chrome --incognito
 TargetEnvironment=Unity
 EOF
 
-            fi
 
             # Install google-chromium.desktop
             sudo xdg-desktop-menu install google-chromium.desktop
 
+            fi
 		# If Installing on OS X...
 		elif [ $OS == "Mac" ]; then
 
