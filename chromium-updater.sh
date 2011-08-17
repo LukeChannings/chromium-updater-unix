@@ -174,7 +174,11 @@ install() {
 		if [ -z "$REVISIONEXISTS" ]; then
 			echo "Downloading r$1...			"
 			rm chrome-linux.zip chrome-mac.zip 2> /dev/null # In case there is a .n naming conflict.
-			$DM "http://build.chromium.org/f/chromium/snapshots/$OS/$1/$ZIPNAME.zip" $DMDDOPTS
+			if [ $OS == "Linux" -a `uname -l` == "x86_64" ]; then
+				$DM "http://build.chromium.org/f/chromium/snapshots/$OS_x64/$1/$ZIPNAME.zip" $DMDDOPTS
+			else
+				$DM "http://build.chromium.org/f/chromium/snapshots/$OS/$1/$ZIPNAME.zip" $DMDDOPTS
+			fi
 
 		else
 			echo "Revision $1 does not exist. Fatal."
@@ -275,24 +279,29 @@ EOF
 usage(){
 
 	printf "Usage:\n"
+
+	# Options.
 	printf -- "-u\t\t\tUpgrade Chromium to the latest SVN revision.\n"
 	printf -- "-r <revision>\t\t\tInstall a specific SVN revision.\n"
 	printf -- "-U\t\t\tPrint this usage.\n"
 	printf -- "-v\t\t\tPrint script version.\n"
+
+	# Parameters.
+	printf "Parameters:\n"
+	printf -- "-x\t\t\tUse 64-bit Chromium. (Linux only.)\n"
 
 	exit
 
 }
 
 # Options.
-while getopts ":ur:Uv" opt; do
+while getopts ":ur:Uvx" opt; do
 	case $opt in
 		U)
 			usage
 		;;
 		u)
 			# Upgrade.
-			echo "Upgrading..."
 			get_info
 			install $CURRENTREV
 		;;
@@ -309,6 +318,9 @@ while getopts ":ur:Uv" opt; do
 		v)
 			echo "Chromium Updater - version 0.9"
 			exit
+		;;
+		x)
+			CHECK64BITSUPPORT=true
 		;;
 		\?)
 			echo "Invalid option -$OPTARG."
