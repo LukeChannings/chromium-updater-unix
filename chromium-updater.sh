@@ -25,7 +25,6 @@ function system {
            		     echo "Chromium does not support OS X Tiger. Please upgrade OS X Leopard at least."
            		     exit
            		 fi
-			 INSTALL64BIT=false
 		;;
 		Linux)
 			OS="Linux"
@@ -36,7 +35,6 @@ function system {
 			DM="wget" # Download Manager
 			DMDDOPTS="" # File download option.
 			DMSOPTS="-qO-" # Streaming Options
-			INSTALL64BIT=false
 		;;
 		\?)
 			echo "This system is not supported."
@@ -44,6 +42,7 @@ function system {
 		;;
 	esac
 
+	INSTALL64BIT=false
 	SYSTEMCALLED=true
 
 }
