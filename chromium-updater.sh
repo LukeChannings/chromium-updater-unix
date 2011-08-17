@@ -23,7 +23,7 @@ function system {
                 TIGERCHECK=`system_profiler SPSoftwareDataType | grep 'System Version' | grep "10.4"`
             if [ ! -z "$TIGERCHECK" ]; then
                 echo "Chromium does not support OS X Tiger. Please upgrade OS X Leopard at least."
-                exit
+                exit 1
             fi
 		;;
 		Linux)
@@ -42,7 +42,7 @@ function system {
 		;;
 		\?)
 			echo "This system is not supported."
-			exit
+			exit 1
 		;;
 	esac
 
@@ -62,7 +62,7 @@ getVersion(){
 	# Make sure there is a revision number to work with.
 	if [ -z "$1" ]; then
 		echo "getVersion() was not passed a revision number."
-		exit
+		exit 2
 	fi
 
 	# Find the Version number of the revision.
@@ -124,7 +124,7 @@ install() {
 	# Check for a Revision number.
 	if [ -z "$1" ]; then
 		echo "Install function requires a revision variable."
-		exit
+		exit 2
 	else
 		# Find the version.
 		getVersion $1
@@ -135,7 +135,7 @@ install() {
 	# as the version currently installed.
 	if [ "$VERSION" == "$INSTALLEDVERSION" ]; then
 		echo "The requested version is already installed. Nothing to do here."
-		exit
+		exit 3
 	fi
 
 	# Check for NOINSTALL.
@@ -170,7 +170,7 @@ install() {
 	if ! $USEEXISTING ; then
 
 		# ^C Trap.
-		trap "rm -rf $PWD;echo ""; exit" SIGINT
+		trap "rm -rf $PWD;echo ""; exit 4" SIGINT
 
 		# Test that the revision exists.
 		REVISIONEXISTS=`$DM $DMSOPTS "http://build.chromium.org/f/chromium/snapshots/$OS/$1/REVISIONS" | grep 404`
@@ -187,7 +187,7 @@ install() {
 
 		else
 			echo "Revision $1 does not exist. Fatal."
-			exit
+			exit 3
 		fi
 		
 		# Extract.
@@ -222,7 +222,7 @@ install() {
 
 				if [ $? -gt 0 ]; then
 					echo "Unable to obtain sudo. The script cannot continue."
-					exit
+					exit 5
 				fi
 			fi
 
@@ -298,7 +298,7 @@ EOF
 	fi
 
 	# Exit. (Prevents printing of usage.)
-	exit
+	exit 0
 
 }
 
@@ -311,7 +311,7 @@ usage(){
 	printf -- "-U\t\t\tPrint this usage.\n"
 	printf -- "-v\t\t\tPrint script version.\n"
 
-	exit
+	exit 0
 
 }
 
@@ -333,7 +333,7 @@ while getopts ":ir:uv" opt; do
 				exit
 			fi
 
-			get_info
+			get_info true
 
 			# Install the requested revision.
 			install $OPTARG
