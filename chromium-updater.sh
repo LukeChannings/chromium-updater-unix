@@ -180,7 +180,7 @@ install() {
 			rm chrome-linux.zip chrome-mac.zip 2> /dev/null # In case there is a .n naming conflict.
 			$DM "http://build.chromium.org/f/chromium/snapshots/$OS/$1/$ZIPNAME.zip" $DMDDOPTS
 
-			if [ $? -gt 0 ]; then
+			if [ $? -gt ]; then
 				echo "Download Failed. Exiting."
 			fi
 
@@ -213,17 +213,14 @@ install() {
 		# If installing on Linux...
 		if [[ $OS =~ Linux.* ]]; then
 			
-			# Sudo checks.
-			if [ `whoami` != "root" ]; then
-				echo "Installing requires root. Please enter your password:"
+			echo "Installing requires root. Please enter your password:"
 
-				# sudo test.
-				sudo echo "Have sudo."
+			# sudo test.
+			sudo echo "Have sudo."
 
-				if [ $? -gt 0 ]; then
-					echo "Unable to obtain sudo. The script cannot continue."
-					exit
-				fi
+			if [ $? -gt 0 ]; then
+				echo "Unable to obtain sudo. The script cannot continue."
+				exit
 			fi
 
 			# Some distro's don't have a symlink to /lib/libbz2.1.0
