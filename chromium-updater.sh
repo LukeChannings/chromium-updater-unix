@@ -9,7 +9,6 @@
 function system {
 	# Check if the system is OS X or Linux.
 	UNAME=`uname`
-	WHOIAM=`whoami`
 	case $UNAME in
 		Darwin)
 			OS="Mac"
@@ -18,10 +17,9 @@ function system {
 			INSTALLBASE="Chromium.app"
 			INSTALLNAME="/Contents/MacOS/Chromium"
 			DM="curl" #Download Manager.
-			DMDOPTS="-sO" # Download Options.
 			DMDDOPTS="-O" # File download option.
 			DMSOPTS="-s" # Streaming Options.
-            # Check it's not Tiger.
+            # Check not Tiger.
             TIGERCHECK=`system_profiler SPSoftwareDataType | grep 'System Version' | grep "10.4"`
             if [ ! -z "$TIGERCHECK" ]; then
                 echo "Chromium does not support OS X Tiger. Please upgrade OS X Leopard at least."
@@ -35,7 +33,6 @@ function system {
 			INSTALLBASE="chromium"
 			INSTALLNAME="chrome"
 			DM="wget" # Download Manager
-			DMDOPTS="-q" # Download Options.
 			DMDDOPTS="" # File download option.
 			DMSOPTS="-qO-" # Streaming Options
 		;;
@@ -44,9 +41,6 @@ function system {
 			exit
 		;;
 	esac
-
-	ZIPOPTS="-q"
-	ECHOOPTS="-n"
 
 }
 
@@ -178,7 +172,7 @@ install() {
 		
 		# Extract.
 		printf "Extracting...\t\t\t"
-		unzip $ZIPOPTS $ZIPNAME.zip
+		unzip -q $ZIPNAME.zip
 		echo "Done."
 
 	fi
@@ -208,7 +202,7 @@ install() {
 			sudo cp -R chrome-linux $INSTALLPATH/chromium
 
 			# Change ownership.
-			sudo chown -R $WHOIAM $INSTALLPATH/chromium
+			sudo chown -R `whoami` $INSTALLPATH/chromium
 
 			# Change Mode.
 			chmod -R 700 $INSTALLPATH/chromium/
@@ -262,16 +256,3 @@ EOF
 	fi
 
 }
-
-# Function to update Chromium to the latest version.
-update() {
-
-	# Get info on installed version.
-	get_info
-
-	# Call install.
-	install $CURRENTREV
-
-}
-
-update
