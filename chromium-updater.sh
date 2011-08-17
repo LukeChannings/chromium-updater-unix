@@ -327,7 +327,7 @@ usage(){
 	printf "Usage:\n"
 	printf -- "-i\t\t\tInstall the latest SVN revision.\n"
 	printf -- "-r <revision>\t\t\tInstall a specific SVN revision.\n"
-	printf -- "-U\t\t\tPrint this usage.\n"
+	printf -- "-u\t\t\tPrint this usage.\n"
 	printf -- "-s\t\t\tShow version information for installed and latest versions.\n"
 	printf -- "-v\t\t\tPrint script version.\n"
 
