@@ -174,7 +174,7 @@ install() {
 		if [ -z "$REVISIONEXISTS" ]; then
 			echo "Downloading r$1...			"
 			rm chrome-linux.zip chrome-mac.zip 2> /dev/null # In case there is a .n naming conflict.
-			if $INSTALL64BIT; then
+			if [ $INSTALL64BIT == true ]; then
 				$DM "http://build.chromium.org/f/chromium/snapshots/$OS_x64/$1/$ZIPNAME.zip" $DMDDOPTS
 			else
 				$DM "http://build.chromium.org/f/chromium/snapshots/$OS/$1/$ZIPNAME.zip" $DMDDOPTS
