@@ -19,12 +19,12 @@ function system {
 			DM="curl" #Download Manager.
 			DMDDOPTS="-O" # File download option.
 			DMSOPTS="-s" # Streaming Options.
-            # Check not Tiger.
-            TIGERCHECK=`system_profiler SPSoftwareDataType | grep 'System Version' | grep "10.4"`
-            if [ ! -z "$TIGERCHECK" ]; then
-                echo "Chromium does not support OS X Tiger. Please upgrade OS X Leopard at least."
-                exit
-            fi
+            		# Check not Tiger.
+            		TIGERCHECK=`system_profiler SPSoftwareDataType | grep 'System Version' | grep "10.4"`
+           		 if [ ! -z "$TIGERCHECK" ]; then
+           		     echo "Chromium does not support OS X Tiger. Please upgrade OS X Leopard at least."
+           		     exit
+           		 fi
 		;;
 		Linux)
 			OS="Linux"
@@ -42,21 +42,29 @@ function system {
 		;;
 	esac
 
+	SYSTEMCALLED=true
+
 }
 
 # Function to turn an SVN Revision number into a version number.
 # $1 - SVN Revision Number.
 getVersion(){
 
+	# Make sure system was called.
+	if [ -z "$SYSTEMCALLED" ]; then
+		system
+	fi
+
 	# Make sure there is a revision number to work with.
 	if [ -z "$1" ]; then
 		echo "getVersion() was not passed a revision number."
 		exit
 	fi
-	
+
 	# Find the Version number of the revision.
 	RETURNEDVERSION=`$DM $DMSOPTS http://src.chromium.org/viewvc/chrome/trunk/src/chrome/VERSION?revision=$1 | \
 	sed -e 's/MAJOR=//' -e 's/MINOR=/./' -e 's/BUILD=/./' -e 's/PATCH=/./' | tr -d '\n'`
+
 }
 
 # Function to get the installed and current versions of Chromium.
@@ -157,6 +165,9 @@ install() {
 	# Download Chromium when we're not using existing file.
 	if ! $USEEXISTING ; then
 
+		# ^C Trap.
+		trap "rm -rf $PWD;echo ""; exit" SIGINT
+
 		# Test that the revision exists.
 		REVISIONEXISTS=`$DM $DMSOPTS "http://build.chromium.org/f/chromium/snapshots/$OS/$1/REVISIONS" | grep 404`
 
@@ -255,4 +266,50 @@ EOF
 
 	fi
 
+	# Exit. (Prevents printing of usage.)
+	exit
+
 }
+
+# Usage.
+usage(){
+
+	printf "Usage:\n"
+	printf -- "-u\t\t\tUpgrade Chromium to the latest SVN revision.\n"
+	printf -- "-r <revision>\t\t\tInstall a specific SVN revision.\n"
+	printf -- "-U\t\t\tPrint this usage.\n"
+	printf -- "-v\t\t\tPrint script version.\n"
+
+}
+
+# Options.
+while getopts ":ur:Uv" opt; do
+	case $opt in
+		U|\?)
+			usage
+		;;
+		u)
+			# Upgrade.
+			echo "Upgrading..."
+			get_info
+			install $CURRENTREV
+		;;
+		r)
+			# Install inputted revision.
+			if [ -z "$OPTARG" ]; then
+				echo "-r requires a revision number."
+				exit
+			fi
+
+			# Install the requested revision.
+			install $OPTARG
+		;;
+		v)
+			echo "Chromium Updater - version 0.9"
+			exit
+		;;
+	esac
+done
+
+# Print the usage. (Should only occur if there are no switches or -U is passed.)
+usage
