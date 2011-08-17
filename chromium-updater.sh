@@ -241,10 +241,10 @@ install() {
 			sudo cp -R chrome-linux $INSTALLPATH/chromium
 
 			# Change ownership.
-			sudo chown -R `whoami` $INSTALLPATH/chromium
+			sudo chown -R `whoami`:users $INSTALLPATH/chromium
 
 			# Change Mode.
-			chmod -R 700 $INSTALLPATH/chromium/
+			chmod -R 770 $INSTALLPATH/chromium/
 
             # If there is no Chromium entry, then make one.
             if [ ! -f /usr/share/applications/google-chromium.desktop ]; then
@@ -275,8 +275,7 @@ Exec=/opt/chromium/chrome --incognito
 TargetEnvironment=Unity
 EOF
 
-
-            # Install google-chromium.desktop
+	    # Install google-chromium.desktop
             sudo xdg-desktop-menu install google-chromium.desktop
 
             fi
@@ -319,8 +318,7 @@ while getopts ":ir:uv" opt; do
 			usage
 		;;
 		i)
-			# Upgrade.
-			echo "Upgrading..."
+			# Install latest.
 			get_info
 			install $CURRENTREV
 		;;
