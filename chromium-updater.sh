@@ -22,8 +22,10 @@ function system {
 			DMDDOPTS="-O" # File download option.
 			DMSOPTS="-s" # Streaming Options.
             # Check it's not Tiger.
-            if [ ! -z `system_profiler SPSoftwareDataType | grep 'System Version' | grep "10.4"` ]; then
+            TIGERCHECK=`system_profiler SPSoftwareDataType | grep 'System Version' | grep "10.4"`
+            if [ ! -z "$TIGERCHECK" ]; then
                 echo "Chromium does not support OS X Tiger. Please upgrade OS X Leopard at least."
+                exit
             fi
 		;;
 		Linux)
