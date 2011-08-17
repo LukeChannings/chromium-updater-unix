@@ -292,14 +292,12 @@ usage(){
 	printf "Parameters:\n"
 	printf -- "-x\t\t\tUse 64-bit Chromium. (Linux only.)\n"
 
-	exit
-
 }
 
 # Options.
 while getopts ":ur:Uvx" opt; do
 	case $opt in
-		U)
+		U|\?)
 			usage
 		;;
 		u)
@@ -321,6 +319,7 @@ while getopts ":ur:Uvx" opt; do
 			echo "Chromium Updater - version 0.9"
 			exit
 		;;
+<<<<<<< HEAD
 		x)
 
 			if [ -z "$SYSTEMCALLED" ]; then
@@ -341,6 +340,8 @@ while getopts ":ur:Uvx" opt; do
 			echo "Invalid option -$OPTARG."
 			usage
 		;;
+=======
+>>>>>>> parent of 88daea9... Fixed revision installing. Improved options.
 	esac
 done
 
