@@ -328,13 +328,11 @@ while getopts ":ur:Uvx" opt; do
 			fi
 
 			# Check for 64-bit architecture first...
-			if [ "$OS" == "Linux" ]; then
-				# Using separate if because -a is parsed if the first condition fails.
-				if [ `uname -l` == "x86_64" ];then
-					INSTALL64BIT=true
-				else
-					echo "This version of Linux is not 64-bit. Using 32-bit"
-				fi
+			if [ "$OS" == "Linux" -a `uname -p` == "x86_64" ]; then
+				echo "Using 64-bit Chromium..."
+				INSTALL64BIT=true
+			elif [ $OS == "Linux" ]; then
+				echo "This version of Linux is not 64-bit. Using 32-bit."
 			elif [ "$OS" == "Mac" ]; then
 				echo "There is no 64-bit version of Chromium for OS X. Using 32-bit."
 			fi
