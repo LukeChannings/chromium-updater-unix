@@ -207,8 +207,11 @@ install() {
 			# Change Mode.
 			chmod -R 700 $INSTALLPATH/chromium/
 
+            # If there is no Chromium entry, then make one.
+            if [ ! -f /usr/share/applications/google-chromium.desktop ]; then
+
 			# Create a .desktop for Chromium.
-cat > google-chromium.desktop << "EOF"
+            cat > google-chromium.desktop << "EOF"
 [Desktop Entry]
 Version=1.0
 Name=Chromium
@@ -233,6 +236,8 @@ Exec=/opt/chromium/chrome --incognito
 TargetEnvironment=Unity
 EOF
 
+            fi
+
             # Install google-chromium.desktop
             sudo xdg-desktop-menu install google-chromium.desktop
 
@@ -244,6 +249,9 @@ EOF
 		fi
 
 		echo "Installed Chromium version $CURRENTVERSION. (SVN r$1)"
+
+        # Cleanup.
+        rm -rf $PWD
 
 	fi
 
