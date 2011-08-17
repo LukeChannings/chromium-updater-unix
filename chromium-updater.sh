@@ -33,7 +33,6 @@ function system {
 			INSTALLBASE="chromium"
 			INSTALLNAME="chrome"
 			DM="wget" # Download Manager
-			DMDDOPTS="" # File download option.
 			DMSOPTS="-qO-" # Streaming Options
 		;;
 		\?)
