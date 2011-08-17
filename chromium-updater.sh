@@ -21,6 +21,10 @@ function system {
 			DMDOPTS="-sO" # Download Options.
 			DMDDOPTS="-O" # File download option.
 			DMSOPTS="-s" # Streaming Options.
+            # Check it's not Tiger.
+            if [ ! -z `system_profiler SPSoftwareDataType | grep 'System Version' | grep "10.4"` ]; then
+                echo "Chromium does not support OS X Tiger. Please upgrade OS X Leopard at least."
+            fi
 		;;
 		Linux)
 			OS="Linux"
@@ -122,7 +126,7 @@ install() {
 	# Check that the version about to be installed is not the same
 	# as the version currently installed.
 	if [ "$VERSION" == "$INSTALLEDVERSION" ]; then
-		echo "Installed and requested versions are the same. Nothing to do here."
+		echo "The requested version is already installed. Nothing to do here."
 		exit
 	fi
 
