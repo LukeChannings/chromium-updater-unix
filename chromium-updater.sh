@@ -180,7 +180,10 @@ install() {
 			rm chrome-linux.zip chrome-mac.zip 2> /dev/null # In case there is a .n naming conflict.
 			$DM "http://build.chromium.org/f/chromium/snapshots/$OS/$1/$ZIPNAME.zip" $DMDDOPTS
 
-			if $?; then
+			if [ $? -gt ]; then
+				echo "Download Failed. Exiting."
+			fi
+
 
 		else
 			echo "Revision $1 does not exist. Fatal."
