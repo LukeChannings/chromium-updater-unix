@@ -333,6 +333,8 @@ while getopts ":ir:uv" opt; do
 				exit
 			fi
 
+			get_info
+
 			# Install the requested revision.
 			install $OPTARG
 		;;
