@@ -280,12 +280,14 @@ usage(){
 	printf -- "-U\t\t\tPrint this usage.\n"
 	printf -- "-v\t\t\tPrint script version.\n"
 
+	exit
+
 }
 
 # Options.
 while getopts ":ur:Uv" opt; do
 	case $opt in
-		U|\?)
+		U)
 			usage
 		;;
 		u)
@@ -307,6 +309,10 @@ while getopts ":ur:Uv" opt; do
 		v)
 			echo "Chromium Updater - version 0.9"
 			exit
+		;;
+		\?)
+			echo "Invalid option -$OPTARG."
+			usage
 		;;
 	esac
 done
