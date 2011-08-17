@@ -292,7 +292,7 @@ EOF
 usage(){
 
 	printf "Usage:\n"
-	printf -- "-u\t\t\tUpgrade Chromium to the latest SVN revision.\n"
+	printf -- "-i\t\t\tInstall the latest SVN revision.\n"
 	printf -- "-r <revision>\t\t\tInstall a specific SVN revision.\n"
 	printf -- "-U\t\t\tPrint this usage.\n"
 	printf -- "-v\t\t\tPrint script version.\n"
@@ -302,12 +302,12 @@ usage(){
 }
 
 # Options.
-while getopts ":ur:Uv" opt; do
+while getopts ":ir:uv" opt; do
 	case $opt in
-		U)
+		u)
 			usage
 		;;
-		u)
+		i)
 			# Upgrade.
 			echo "Upgrading..."
 			get_info
