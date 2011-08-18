@@ -6,7 +6,7 @@
 #
 
 AUTHOR="Luke Channings"
-VERSION=1.0.1
+VERSION=1.0.2
 
 # Function to set operating variables.
 function system {
@@ -247,13 +247,16 @@ install() {
 				fi
 			fi
 
-			# Some distro's don't have a symlink to /lib/libbz2.1.0
-			for i in `ls /lib | grep libbz2`; do
-				# Make one.
-				sudo ln -s $i /lib/libbz2.so.1.0
-				# Exit the loop.
-				break
-			done
+			# Check for /lib/libbz2.1.0
+			if [ ! -f /lib/libbz2.1.0 ]; then
+				# If unfound then make one.
+				for i in `ls /lib | grep libbz2`; do
+					# Make one.
+					sudo ln -s $i /lib/libbz2.so.1.0
+					# Exit the loop.
+					break
+				done
+			fi
 			
 			# Delete existing Chromium if it exists.
 			if $INSTALLED; then sudo rm -rf $INSTALLPATH/chromium; fi
@@ -316,9 +319,11 @@ EOF
 		else
 			echo "Installed Chromium version $CURRENTVERSION. (SVN r$1)"
 		fi
-
-        # Cleanup.
-        rm -rf $PWD
+	
+        	# Cleanup.
+		if [ -z "$SKIPCLEANUP" ];then
+        		rm -rf $PWD
+		fi
 
 	fi
 
@@ -346,13 +351,14 @@ usage(){
 	printf "Parameters:\n"
 	printf -- "-n\t\t\tDownload only, do not install.\n"
 	printf -- "-I\t\t\tIgnore version checking.\n"
+	printf -- "-k\t\t\tDo not remove install files.\n"
 
 	exit 0
 
 }
 
 # Options.
-while getopts ":ir:uvsnI" opt; do
+while getopts ":ir:uvsnIk" opt; do
 	case $opt in
 		u)
 			usage
@@ -389,6 +395,9 @@ while getopts ":ir:uvsnI" opt; do
 		;;
 		I)
 			IGNORECHECKS=true
+		;;
+		k)
+			SKIPCLEANUP=true
 		;;
 		\?)
 			echo "Invalid option -$OPTARG."
