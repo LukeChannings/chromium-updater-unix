@@ -51,6 +51,10 @@ function system {
 
 	SYSTEMCALLED=true
 
+	if [ -z "$NOINSTALL" ]; then
+		NOINSTALL=false
+	fi
+
 }
 
 # Function to turn an SVN Revision number into a version number.
@@ -139,7 +143,6 @@ function show_info
 #
 # Parameters:
 # $1 - SVN Revision to install.
-# $2 - No install bool.
 #
 install() {
 
@@ -155,16 +158,10 @@ install() {
 
 	# Check that the version about to be installed is not the same
 	# as the version currently installed.
-	if [ "$VERSION" == "$INSTALLEDVERSION" ]; then
-		echo "The requested version is already installed. Nothing to do here."
+	if ([ -z "$IGNORECHECKS" ] && [ "$VERSION" == "$INSTALLEDVERSION" ]); then
+		echo "Version $INSTALLEDVERSION is already installed."
+		echo "Exiting... (To override use -I.)"
 		exit 3
-	fi
-
-	# Check for NOINSTALL.
-	if [ -z "$2" ]; then
-		NOINSTALL=false
-	else
-		NOINSTALL=true
 	fi
 
 	# Make a temporary folder in which to put downloaded files.
@@ -328,18 +325,28 @@ EOF
 usage(){
 
 	printf "Usage:\n"
+	printf "$0 <parameters> <options>\n"
+	printf "Note: Parameters must be before options or they will be ignored.\n\n"
+
+	# Options
+	printf "Options:\n"
 	printf -- "-i\t\t\tInstall the latest SVN revision.\n"
-	printf -- "-r <revision>\t\t\tInstall a specific SVN revision.\n"
+	printf -- "-r <revision>\t\tInstall a specific SVN revision.\n"
 	printf -- "-u\t\t\tPrint this usage.\n"
 	printf -- "-s\t\t\tShow version information for installed and latest versions.\n"
-	printf -- "-v\t\t\tPrint script version.\n"
+	printf -- "-v\t\t\tPrint script version.\n\n"
+
+	# Parameters:
+	printf "Parameters:\n"
+	printf -- "-n\t\t\tDownload only, do not install.\n"
+	printf -- "-I\t\t\tIgnore version checking.\n"
 
 	exit 0
 
 }
 
 # Options.
-while getopts ":ir:uvs" opt; do
+while getopts ":ir:uvsnI" opt; do
 	case $opt in
 		u)
 			usage
@@ -359,7 +366,7 @@ while getopts ":ir:uvs" opt; do
 			get_info true
 
 			# Install the requested revision.
-			install $OPTARG
+			install $OPTARG true
 		;;
 		v)
 			echo "Chromium Updater"
@@ -370,6 +377,12 @@ while getopts ":ir:uvs" opt; do
 		s)
 			# Show Info.
 			show_info
+		;;
+		n)
+			NOINSTALL=true
+		;;
+		I)
+			IGNORECHECKS=true
 		;;
 		\?)
 			echo "Invalid option -$OPTARG."
