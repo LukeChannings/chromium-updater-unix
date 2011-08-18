@@ -225,8 +225,10 @@ install() {
 			# Kill any running instance.
 			killall chromium 2> /dev/null
 			
-			# Delete the current version.
-			rm -rf $INSTALLPATH/$INSTALLBASE
+			if [ $OS == "Mac" ]; then
+				# Delete the current version.
+				rm -rf $INSTALLPATH/$INSTALLBASE
+			fi
 		fi
 
 		# If installing on Linux...
