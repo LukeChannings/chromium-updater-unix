@@ -309,7 +309,11 @@ EOF
 			cp -R chrome-mac/Chromium.app /Applications/
 		fi
 
-		echo "Installed Chromium version $CURRENTVERSION. (SVN r$1)"
+		if $INSTALLED; then
+			echo "Upgraded from $INSTALLEDVERSION to $VERSION"
+		else
+			echo "Installed Chromium version $CURRENTVERSION. (SVN r$1)"
+		fi
 
         # Cleanup.
         rm -rf $PWD
