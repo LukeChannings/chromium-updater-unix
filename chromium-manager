@@ -1,12 +1,12 @@
 #!/bin/bash
 #
-# Chromium Updater
+# Chromium Manager
 # - For Mac and Linux
 # Copyright 2011 Luke Channings
 #
 
 AUTHOR="Luke Channings"
-VERSION=1.0.2
+VERSION=1.0.3
 
 # Function to set operating variables.
 function system {
@@ -346,8 +346,7 @@ EOF
 usage(){
 
 	printf "Usage:\n"
-	printf "$0 <parameters> <options>\n"
-	printf "Note: Parameters must be before options or they will be ignored.\n\n"
+	printf "$0 [-i] [-r <revision>] [-u] [-s] [-v] <parameters>\n"
 
 	# Options
 	printf "Options:\n"
@@ -375,24 +374,20 @@ while getopts ":ir:uvsnIkR" opt; do
 			usage
 		;;
 		i)
-			# Install latest.
-			get_info
-			install $CURRENTREV
+			INSTALL="UPDATE"
 		;;
 		r)
 			# Install inputted revision.
 			if [ -z "$OPTARG" ]; then
 				echo "-r requires a revision number."
-				exit
+				exit 1
 			fi
 
-			get_info true
-
-			# Install the requested revision.
-			install $OPTARG true
+			INSTALL="INSTALLREVISION"
+			REVISION=$OPTARG
 		;;
 		v)
-			echo "Chromium Updater"
+			echo "Chromium Manager"
 			echo "Version: $VERSION"
 			echo "Author: $AUTHOR"
 			exit
@@ -420,5 +415,14 @@ while getopts ":ir:uvsnIkR" opt; do
 	esac
 done
 
-# Print the usage. (Should only occur if there are no switches or -U is passed.)
-usage
+if [ "$INSTALL" == "UPDATE"  ]; then
+	# Install latest.
+	get_info
+	install $CURRENTREV
+elif [ "$INSTALL" == "INSTALLREVISION" ]; then
+	get_info true
+	# Install the requested revision.
+	install $REVISION true
+else
+	usage
+fi
