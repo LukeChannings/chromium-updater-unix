@@ -223,7 +223,7 @@ install() {
 		if $INSTALLED; then
 
 			# Kill any running instance.
-			killall chromium 2> /dev/null
+			killall Chromium 2> /dev/null
 			
 			if [ $OS == "Mac" ]; then
 				# Delete the current version.
@@ -236,10 +236,10 @@ install() {
 			
 			# Sudo checks.
 			if [ `whoami` != "root" ]; then
-				echo "Installing requires root. Please enter your password:"
+				printf "Please enter your password:\t"
 
 				# sudo test.
-				sudo echo "Have sudo."
+				sudo printf "Thank You.\n"
 
 				if [ $? -gt 0 ]; then
 					echo "Unable to obtain sudo. The script cannot continue."
@@ -247,8 +247,8 @@ install() {
 				fi
 			fi
 
-			# Check for /lib/libbz2.1.0
-			if [ ! -f /lib/libbz2.1.0 ]; then
+			# Check for /lib/libbz2.so.1.0
+			if ([ ! -h  /lib/libbz2.so.1.0 ] || [ ! -f /lib/libbz2.so.1.0 ]); then
 				# If unfound then make one.
 				for i in `ls /lib | grep libbz2`; do
 					# Make one.
