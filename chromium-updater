@@ -332,7 +332,7 @@ EOF
 
 		# Run the new Chromium.
 		if $RUNAFTERINSTALL; then
-
+			RUNAFTERINSTALL=false
 		fi
 
 	fi
