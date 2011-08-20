@@ -55,6 +55,10 @@ function system {
 		NOINSTALL=false
 	fi
 
+	if [ -z "$RUNAFTERINSTALL" ];then
+		RUNAFTERINSTALL=false
+	fi
+
 }
 
 # Function to turn an SVN Revision number into a version number.
@@ -224,6 +228,7 @@ install() {
 
 			# Kill any running instance.
 			killall Chromium 2> /dev/null
+			killall chrome 2> /dev/null
 			
 			if [ $OS == "Mac" ]; then
 				# Delete the current version.
@@ -325,6 +330,11 @@ EOF
         		rm -rf $PWD
 		fi
 
+		# Run the new Chromium.
+		if $RUNAFTERINSTALL; then
+
+		fi
+
 	fi
 
 	# Exit. (Prevents printing of usage.)
@@ -352,13 +362,14 @@ usage(){
 	printf -- "-n\t\t\tDownload only, do not install.\n"
 	printf -- "-I\t\t\tIgnore version checking.\n"
 	printf -- "-k\t\t\tDo not remove install files.\n"
+	printf -- "-R\t\t\tRun Chromium after installing.\n"
 
 	exit 0
 
 }
 
 # Options.
-while getopts ":ir:uvsnIk" opt; do
+while getopts ":ir:uvsnIkR" opt; do
 	case $opt in
 		u)
 			usage
@@ -398,6 +409,9 @@ while getopts ":ir:uvsnIk" opt; do
 		;;
 		k)
 			SKIPCLEANUP=true
+		;;
+		R)
+			RUNAFTERINSTALL=true
 		;;
 		\?)
 			echo "Invalid option -$OPTARG."
