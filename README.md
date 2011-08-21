@@ -12,16 +12,15 @@ and has also been tested on OS X 10.5+. (Chromium is not supported on OS X Tiger
 
 #Usage#
 
-./chromium-manager [-i] [-r <revision>] [-u] [-s] [-v] <parameters>
 Options:
-1. -i                      Install the latest SVN revision.
-2. -r <revision>           Install a specific SVN revision.
-3. -u                      Print this usage.
-4. -s                      Show version information for installed and latest versions.
-5. -v                      Print script version.
+-i                      Install the latest SVN revision.
+-r <revision>           Install a specific SVN revision.
+-u                      Print this usage.
+-s                      Show version information for installed and latest versions.
+-v                      Print script version.
 
 Parameters:
-1. -n                      Download only, do not install.
-2. -I                      Ignore version checking.
-3. -k                      Do not remove install files.
-4. -R                      Run Chromium after installing.
+-n                      Download only, do not install.
+-I                      Ignore version checking.
+-k                      Do not remove install files.
+-R                      Run Chromium after installing.
