@@ -51,14 +51,20 @@ function system {
                 		exit 1
             		fi
 		;;
-		Linux)
+		Linux|FreeBSD)
 			if [ `uname -p` == "x86_64" ]; then
 				OS="Linux_x64"
 			else
 				OS="Linux"
 			fi
 			ZIPNAME="chrome-linux"
-			INSTALLPATH="/opt"
+			if [ -d /opt ]; then
+				INSTALLPATH="/opt"
+			else if [ -d /Programs ]; then
+				INSTALLPATH="/Programs"
+			else
+				INSTALLPATH="/usr/local"
+			fi
 			INSTALLBASE="chromium"
 			INSTALLNAME="chrome"
 		;;
