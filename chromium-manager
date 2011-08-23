@@ -29,20 +29,14 @@ function system {
                 		exit 1
             		fi
 		;;
-		Linux|FreeBSD)
+		Linux)
 			if [ `uname -p` == "x86_64" ]; then
 				OS="Linux_x64"
 			else
 				OS="Linux"
 			fi
 			ZIPNAME="chrome-linux"
-			if [ -d /opt ]; then
-				INSTALLPATH="/opt"
-			else if [ -d /Programs ]; then
-				INSTALLPATH="/Programs"
-			else
-				INSTALLPATH="/usr/local"
-			fi
+			INSTALLPATH="/opt"
 			INSTALLBASE="chromium"
 			INSTALLNAME="chrome"
 			DM="wget" # Download Manager
