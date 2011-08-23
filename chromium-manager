@@ -8,6 +8,31 @@
 AUTHOR="Luke Channings"
 VERSION=1.0.3
 
+# Supplement wget.
+if [ -z `which wget` ]; then
+    if [ ! -z `which curl` ]; then
+        wget()
+        {
+            curl $1 -sO
+        }
+        else
+        echo "No method of downloading available."
+        exit 1
+    fi
+fi
+
+# Suppliment curl.
+if [ -z `which curl` ]; then
+    if [ ! -z `which wget` ]; then
+        curl()
+        {
+            wget -qO- $2
+        }
+    else
+        echo "Cannot suppliment curl, no wget installed."
+    fi
+fi
+
 # Function to set operating variables.
 function system {
 	# Check if the system is OS X or Linux.
@@ -19,15 +44,12 @@ function system {
 			INSTALLPATH="/Applications"
 			INSTALLBASE="Chromium.app"
 			INSTALLNAME="/Contents/MacOS/Chromium"
-			DM="curl" #Download Manager.
-			DMDDOPTS="-O" # File download option.
-			DMSOPTS="-s" # Streaming Options.
-            		# Check not Tiger.
+            # Check not Tiger.
 			TIGERCHECK=`system_profiler SPSoftwareDataType | grep 'System Version' | grep "10.4"`
 			if [ ! -z "$TIGERCHECK" ]; then
 				echo "Chromium does not support OS X Tiger. Please upgrade OS X Leopard at least."
-                		exit 1
-            		fi
+                exit 1
+            fi
 		;;
 		Linux|FreeBSD)
 			if [ `uname -p` == "x86_64" ]; then
@@ -45,9 +67,6 @@ function system {
 			fi
 			INSTALLBASE="chromium"
 			INSTALLNAME="chrome"
-			DM="wget" # Download Manager
-			DMDDOPTS="" # File download option.
-			DMSOPTS="-qO-" # Streaming Options
 		;;
 		\?)
 			echo "This system is not supported."
@@ -83,7 +102,7 @@ get_version(){
 	fi
 
 	# Find the Version number of the revision.
-	RETURNEDVERSION=`$DM $DMSOPTS http://src.chromium.org/viewvc/chrome/trunk/src/chrome/VERSION?revision=$1 | \
+	RETURNEDVERSION=`curl -s http://src.chromium.org/viewvc/chrome/trunk/src/chrome/VERSION?revision=$1 | \
 	sed -e 's/MAJOR=//' -e 's/MINOR=/./' -e 's/BUILD=/./' -e 's/PATCH=/./' | tr -d '\n'`
 
 }
@@ -124,7 +143,7 @@ get_info() {
 	# Find the latest SVN Revision and its version.
 	if $LOOKUPLATESTREVISION; then
 		# Find the Revision number.
-		CURRENTREV=`$DM $DMSOPTS http://build.chromium.org/f/chromium/snapshots/$OS/LATEST`
+		CURRENTREV=`curl http://build.chromium.org/f/chromium/snapshots/$OS/LATEST`
 		# Get the version from the SVN Revision.
 		get_version $CURRENTREV
 		CURRENTVERSION=$RETURNEDVERSION
@@ -188,7 +207,7 @@ install() {
 			;;
 			n|N|No|NO|\?)
 				USEEXISTING=false
-				rm -rf chrome-mac.zip chrome-linux.zip chrome-mac chrome-linux 2> /dev/null
+				rm -rf $ZIPNAME.zip $ZIPNAME 2> /dev/null
 			;;
 		esac
 	else
@@ -202,12 +221,12 @@ install() {
 		trap "rm -rf $PWD;echo ""; exit 4" SIGINT
 
 		# Test that the revision exists.
-		REVISIONEXISTS=`$DM $DMSOPTS "http://build.chromium.org/f/chromium/snapshots/$OS/$1/REVISIONS" | grep 404`
+		REVISIONEXISTS=`curl -s "http://build.chromium.org/f/chromium/snapshots/$OS/$1/REVISIONS" | grep 404`
 
 		if [ -z "$REVISIONEXISTS" ]; then
 			echo "Downloading r$1...			"
 			rm chrome-linux.zip chrome-mac.zip 2> /dev/null # In case there is a .n naming conflict.
-			$DM "http://build.chromium.org/f/chromium/snapshots/$OS/$1/$ZIPNAME.zip" $DMDDOPTS
+			wget "http://build.chromium.org/f/chromium/snapshots/$OS/$1/$ZIPNAME.zip"
 
 			if [ $? -gt 0 ]; then
 				echo "Download Failed. Exiting."
