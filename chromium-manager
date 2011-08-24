@@ -143,7 +143,7 @@ get_info() {
 	# Find the latest SVN Revision and its version.
 	if $LOOKUPLATESTREVISION; then
 		# Find the Revision number.
-		CURRENTREV=`curl http://build.chromium.org/f/chromium/snapshots/$OS/LATEST`
+		CURRENTREV=`curl -s http://build.chromium.org/f/chromium/snapshots/$OS/LATEST`
 		# Get the version from the SVN Revision.
 		get_version $CURRENTREV
 		CURRENTVERSION=$RETURNEDVERSION
