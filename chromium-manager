@@ -143,7 +143,7 @@ get_info() {
 	# Find the latest SVN Revision and its version.
 	if $LOOKUPLATESTREVISION; then
 		# Find the Revision number.
-		CURRENTREV=`curl -s http://build.chromium.org/f/chromium/snapshots/$OS/LATEST`
+		CURRENTREV=`curl -s http://commondatastorage.googleapis.com/chromium-browser-snapshots/$OS/LAST_CHANGE`
 		# Get the version from the SVN Revision.
 		get_version $CURRENTREV
 		CURRENTVERSION=$RETURNEDVERSION
@@ -221,12 +221,12 @@ install() {
 		trap "rm -rf $PWD;echo ""; exit 4" SIGINT
 
 		# Test that the revision exists.
-		REVISIONEXISTS=`curl -s "http://build.chromium.org/f/chromium/snapshots/$OS/$1/REVISIONS" | grep 404`
+		REVISIONEXISTS=`curl -s "http://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?path=$os/$1/" | grep 404`
 
 		if [ -z "$REVISIONEXISTS" ]; then
 			echo "Downloading r$1...			"
 			rm chrome-linux.zip chrome-mac.zip 2> /dev/null # In case there is a .n naming conflict.
-			wget "http://build.chromium.org/f/chromium/snapshots/$OS/$1/$ZIPNAME.zip"
+			wget "http://commondatastorage.googleapis.com/chromium-browser-snapshots/$OS/$1/$ZIPNAME.zip"
 
 			if [ $? -gt 0 ]; then
 				echo "Download Failed. Exiting."
