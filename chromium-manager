@@ -8,20 +8,24 @@
 AUTHOR="Luke Channings"
 VERSION=1.0.4
 
-# Supplement wget.
+# wget shim
 if [ -z `which wget` ]; then
     if [ ! -z `which curl` ]; then
         wget()
         {
-            curl $1 -sO
+		if [ -z "$2" ]; then
+			curl $1 -sO 
+		else
+			curl $1 -so $3
+		fi
         }
-        else
+    else
         echo "No method of downloading available."
         exit 1
     fi
 fi
 
-# Suppliment curl.
+# curl shim
 if [ -z `which curl` ]; then
     if [ ! -z `which wget` ]; then
         curl()
@@ -29,7 +33,8 @@ if [ -z `which curl` ]; then
             wget -qO- $2
         }
     else
-        echo "Cannot suppliment curl, no wget installed."
+        echo "No method of downloading available."
+	exit 1
     fi
 fi
 
@@ -226,10 +231,11 @@ install() {
 		if [ -z "$REVISIONEXISTS" ]; then
 			echo "Downloading r$1...			"
 			rm chrome-linux.zip chrome-mac.zip 2> /dev/null # In case there is a .n naming conflict.
-			wget "http://commondatastorage.googleapis.com/chromium-browser-snapshots/$OS/$1/$ZIPNAME.zip"
+			wget "http://commondatastorage.googleapis.com/chromium-browser-snapshots/$OS/$1/$ZIPNAME.zip" -O "$ZIPNAME.zip"
 
 			if [ $? -gt 0 ]; then
 				echo "Download Failed. Exiting."
+				exit 1
 			fi
 
 
