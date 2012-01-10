@@ -57,7 +57,7 @@ function system {
             fi
 		;;
 		Linux|FreeBSD)
-			if [ -z "/lib/libXss.so.1" ]; then
+			if [ -z "/usr/lib/i386-linux-gnu/libXss.so.1" ]; then
 				echo "Chromium needs libxss1. Please install it and re-run."
 				echo "Install in Ubuntu: sudo apt-get install libxss1"
 				exit 1
