@@ -14,9 +14,9 @@ if [ -z `which wget` ]; then
         wget()
         {
 		if [ -z "$2" ]; then
-			curl $1 -sO 
+			curl $1 -sOL 
 		else
-			curl $1 -so $3
+			curl $1 -sLo $3
 		fi
         }
     else
